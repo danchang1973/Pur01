@@ -55,3 +55,1725 @@ __history/
 
 # Castalia statistics file
 *.stat
+
+unit pUnit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, ADODB, StdCtrls, Grids, DBGrids, OleServer, ExcelXP, jpeg,
+  ExtCtrls, ComCtrls, TeEngine, Series, TeeProcs, Chart;
+
+type
+  TForm1 = class(TForm)
+    ExcelApplication1: TExcelApplication;
+    ADOConnection1: TADOConnection;
+    ADOQuery14: TADOQuery;
+    ADOQuery1: TADOQuery;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    ProgressBar1: TProgressBar;
+    Label21: TLabel;
+    Edit1: TEdit;
+    Image1: TImage;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    ComboBox1: TComboBox;
+    Button2: TButton;
+    Label4: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Button1: TButton;
+    StringGrid1: TStringGrid;
+    Panel6: TPanel;
+    Panel7: TPanel;
+    ComboBox2: TComboBox;
+    Button5: TButton;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Button3: TButton;
+    StringGrid2: TStringGrid;
+    Panel8: TPanel;
+    Panel9: TPanel;
+    Label1: TLabel;
+    Edit2: TEdit;
+    Button6: TButton;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
+    Button4: TButton;
+    Chart1: TChart;
+    Series1: TLineSeries;
+    Panel10: TPanel;
+    StringGrid4: TStringGrid;
+    procedure Button6Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure StringGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure StringGrid2DrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure StringGrid4DrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure StringGrid1SelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure StringGrid4SelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure StringGrid2SelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.Button6Click(Sender: TObject);
+var
+  s1:array[1..100,1..4] of string;
+  t1:array[1..4] of real;
+  i,j,l,m,n,o:integer;
+begin
+
+  for i:=1 to 100 do
+    for j:=1 to 3 do
+      s1[i,j]:='';
+
+  for j:=1 to 100 do
+    for l:= 1 to 17 do
+      StringGrid4.Cells[l-1,j]:='';
+
+  o:=0;
+  if (Edit2.text>='4SC') and (Edit2.text<='4SD') then o:=1;                       // check cell
+
+  with Chart1 do Series1.Clear;
+
+//  StringGrid4.Cells[0,0]:='品號';
+  StringGrid4.Cells[0,0]:='品名';
+  StringGrid4.Cells[1,0]:='規格';
+  StringGrid4.Cells[2,0]:='廠商';
+  StringGrid4.Cells[3,0]:='01';
+  StringGrid4.Cells[4,0]:='02';
+  StringGrid4.Cells[5,0]:='03';
+  StringGrid4.Cells[6,0]:='04';
+  StringGrid4.Cells[7,0]:='05';
+  StringGrid4.Cells[8,0]:='06';
+  StringGrid4.Cells[9,0]:='07';
+  StringGrid4.Cells[10,0]:='08';
+  StringGrid4.Cells[11,0]:='09';
+  StringGrid4.Cells[12,0]:='10';
+  StringGrid4.Cells[13,0]:='11';
+  StringGrid4.Cells[14,0]:='12';
+  StringGrid4.Cells[15,0]:='幣別';
+  StringGrid4.Cells[16,0]:='品號';
+
+  ADOQuery14.close;
+  ADOQuery14.SQL.Clear;
+  ADOQuery14.SQL.add('select TH004,TH005,TH006,TH002,TH018,TH015,TG007,TG005');                                // 查進貨單明細
+  ADOQuery14.sql.add('from PURTH,PURTG');
+  ADOQuery14.sql.add('WHERE TH004=:s1');
+//  ADOQuery14.sql.add('WHERE TH004>:s1');
+//  ADOQuery14.sql.add('AND TH004<:s2');
+  ADOQuery14.sql.add('AND TH002>:s3');
+  ADOQuery14.sql.add('AND TH002<:s4');
+  ADOQuery14.sql.add('AND TH030=:s5');
+  ADOQuery14.sql.add('AND TG001=TH001');
+  ADOQuery14.sql.add('AND TG002=TH002');
+  ADOQuery14.sql.add('ORDER BY TG005');
+  ADOQuery14.Parameters.parambyname('s1').VALUE:=Edit2.text;
+//  ADOQuery14.Parameters.parambyname('s1').VALUE:='4';
+//  ADOQuery14.Parameters.parambyname('s2').VALUE:='6';
+//  ADOQuery14.Parameters.parambyname('s1').VALUE:='1';
+//  ADOQuery14.Parameters.parambyname('s2').VALUE:='2';
+  ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+'010000';
+  ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+'129999';
+  ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+  ADOQuery14.open;
+  ADOQuery14.first;
+  i:=1;
+  IF ADOQuery14.RECORDCOUNT>0 THEN
+    begin
+      s1[i,1]:=ADOQuery14.FieldByName('TH004').value;
+      s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+      s1[i,3]:=ADOQuery14.FieldByName('TH006').value;
+      s1[i,4]:=ADOQuery14.FieldByName('TH005').value;
+      ADOQuery14.next;
+      for j:= 1 to ADOQuery14.RECORDCOUNT do
+        begin
+          if (s1[i,1]<>ADOQuery14.FieldByName('TH004').value) or
+             (s1[i,2]<>ADOQuery14.FieldByName('TG005').value) then
+            begin
+              i:=i+1;
+              s1[i,1]:=ADOQuery14.FieldByName('TH004').value;
+              s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+              s1[i,3]:=ADOQuery14.FieldByName('TH006').value;
+              s1[i,4]:=ADOQuery14.FieldByName('TH005').value;
+            end;
+          ADOQuery14.next;
+        end;
+
+    StringGrid4.rowcount:=i+2;
+
+    ProgressBar1.Max:=i;
+    ProgressBar1.position:=0;
+    for j :=1 to i do
+      begin
+        StringGrid4.Cells[0,j]:=s1[j,4];
+        StringGrid4.Cells[16,j]:=s1[j,1];
+        StringGrid4.Cells[1,j]:=s1[j,3];
+        if (o=1) then t1[4]:=strtofloat(copy(s1[j,1],6,3));
+        for l:=1 to 9 do
+          begin
+            ADOQuery14.close;
+            ADOQuery14.SQL.Clear;
+            ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007,TG005');                                // 查1-9進貨單價
+            ADOQuery14.sql.add('from PURTH,PURTG');
+            ADOQuery14.sql.add('WHERE TH004=:s1');
+            ADOQuery14.sql.add('AND TH002>:s3');
+            ADOQuery14.sql.add('AND TH002<:s4');
+            ADOQuery14.sql.add('AND TH030=:s5');
+            ADOQuery14.sql.add('AND TG005=:s6');
+            ADOQuery14.sql.add('AND TG001=TH001');
+            ADOQuery14.sql.add('AND TG002=TH002');
+            ADOQuery14.sql.add('ORDER BY TH004,TH002');
+            ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+            ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+'0'+inttostr(l)+'0000';
+            ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+'0'+inttostr(l)+'9999';
+            ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+            ADOQuery14.Parameters.parambyname('s6').VALUE:=s1[j,2];
+            ADOQuery14.open;
+
+            for m:= 1 to 3 do t1[m]:=0;
+            IF ADOQuery14.RECORDCOUNT>0 THEN
+              begin
+                for n:= 1 to ADOQuery14.RECORDCOUNT do
+                  begin
+                    t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;
+                    t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value;
+                    ADOQuery14.next;
+                  end;
+                if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                if (t1[1]>0) and (o=1) then t1[3]:=t1[2]/t1[1]/t1[4]*100;
+                StringGrid4.Cells[l+2,j]:=floattostrF(t1[3],ffNumber,7,2);
+                StringGrid4.Cells[15,j]:=ADOQuery14.FieldByName('TG007').asstring;
+                with Chart1 do Series1.AddXY(l,t1[3]);
+              end;
+          end;
+
+        for l:=10 to 12 do
+          begin
+            ADOQuery14.close;
+            ADOQuery14.SQL.Clear;
+            ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007,TG005');                                // 查10-12進貨單價
+            ADOQuery14.sql.add('from PURTH,PURTG');
+            ADOQuery14.sql.add('WHERE TH004=:s1');
+            ADOQuery14.sql.add('AND TH002>:s3');
+            ADOQuery14.sql.add('AND TH002<:s4');
+            ADOQuery14.sql.add('AND TH030=:s5');
+            ADOQuery14.sql.add('AND TG005=:s6');
+            ADOQuery14.sql.add('AND TG001=TH001');
+            ADOQuery14.sql.add('AND TG002=TH002');
+            ADOQuery14.sql.add('ORDER BY TH004,TH002');
+            ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+            ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+inttostr(l)+'0000';
+            ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+inttostr(l)+'9999';
+            ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+            ADOQuery14.Parameters.parambyname('s6').VALUE:=s1[j,2];
+            ADOQuery14.open;
+
+            for m:= 1 to 3 do t1[m]:=0;
+            IF ADOQuery14.RECORDCOUNT>0 THEN
+              begin
+                for n:= 1 to ADOQuery14.RECORDCOUNT do
+                  begin
+                    t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;
+                    t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value;
+                    ADOQuery14.next;
+                  end;
+                if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                if (t1[1]>0) and (t1[4]>0) and(o=1) then t1[3]:=t1[2]/t1[1]/t1[4]*100;
+                StringGrid4.Cells[l+2,j]:=floattostrF(t1[3],ffNumber,7,2);
+                StringGrid4.Cells[15,j]:=ADOQuery14.FieldByName('TG007').asstring;
+                with Chart1 do Series1.AddXY(l,t1[3]);
+              end;
+          end;
+        ProgressBar1.position:=j;
+      end;
+    end;
+
+{
+  for j := 1 to i do
+    begin
+      ADOQuery1.close;                                                              //轉換品名   2010.12.21
+      ADOQuery1.SQL.Clear;
+      ADOQuery1.SQL.add('select MB002');
+      ADOQuery1.sql.add('from INVMB');
+      ADOQuery1.sql.add('where MB001=:s1');
+      ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,1];
+      ADOQuery1.open;
+      if ADOQuery1.recordcount>0 then
+        begin
+          s1[j,4]:=ADOQuery1.fieldbyname('MB002').VALUE;
+          StringGrid4.Cells[0,j]:=s1[j,4];
+        end;
+    end;
+}
+  for j := 1 to i do
+    begin
+      ADOQuery1.close;                                                              //轉換廠商   2010.12.28
+      ADOQuery1.SQL.Clear;
+      ADOQuery1.SQL.add('select MA002');
+      ADOQuery1.sql.add('from PURMA');
+      ADOQuery1.sql.add('where MA001=:s1');
+      ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,2];
+      ADOQuery1.open;
+      if ADOQuery1.recordcount>0 then
+        begin
+          s1[j,2]:=ADOQuery1.fieldbyname('MA002').VALUE;
+          StringGrid4.Cells[2,j]:=s1[j,2];
+        end;
+    end;
+  ProgressBar1.position:=0;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+VAR
+  asheet:variant;
+  i,j:INTEGER;
+begin
+  ExcelApplication1.Visible[0]:=true;
+  ExcelApplication1.Workbooks.Add(xlwbatworksheet,0);
+  asheet:= ExcelApplication1.Worksheets.Item[1];
+  FOR i := 0 to StringGrid4.RowCount do
+    begin
+      for j := 0 to StringGrid4.colCount  do
+        begin
+          asheet.cells[i+1,j+1].value:=StringGrid4.Cells[j,i];
+        end;
+    end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  s1:array[1..100,1..4] of string;
+  t1:array[1..4] of real;
+  i,j,l,m,n:integer;
+begin
+
+  for i:=1 to 100 do                                                             // reset s1[]
+    for j:=1 to 3 do
+      s1[i,j]:='';
+                                                                                 //reset  StringGrid1
+  for j:=1 to 100 do
+    for l:= 1 to 17 do
+      StringGrid1.Cells[l-1,j]:='';
+
+//  StringGrid1.Cells[0,0]:='品號';
+  StringGrid1.Cells[0,0]:='品名';
+  StringGrid1.Cells[1,0]:='規格';
+  StringGrid1.Cells[2,0]:='廠商';
+  StringGrid1.Cells[3,0]:='01';
+  StringGrid1.Cells[4,0]:='02';
+  StringGrid1.Cells[5,0]:='03';
+  StringGrid1.Cells[6,0]:='04';
+  StringGrid1.Cells[7,0]:='05';
+  StringGrid1.Cells[8,0]:='06';
+  StringGrid1.Cells[9,0]:='07';
+  StringGrid1.Cells[10,0]:='08';
+  StringGrid1.Cells[11,0]:='09';
+  StringGrid1.Cells[12,0]:='10';
+  StringGrid1.Cells[13,0]:='11';
+  StringGrid1.Cells[14,0]:='12';
+  StringGrid1.Cells[15,0]:='幣別';
+  StringGrid1.Cells[16,0]:='品號';
+
+  ADOQuery14.close;
+  ADOQuery14.SQL.Clear;
+  ADOQuery14.SQL.add('select TH004,TH005,TH006,TH002,TH018,TH015,TG007,TG005');      // 查進貨單身明細
+  ADOQuery14.sql.add('from PURTH,PURTG');
+  ADOQuery14.sql.add('WHERE TH004>:s1');
+  ADOQuery14.sql.add('AND TH004<:s2');
+  ADOQuery14.sql.add('AND TH002>:s3');
+  ADOQuery14.sql.add('AND TH002<:s4');
+  ADOQuery14.sql.add('AND TH030=:s5');
+  ADOQuery14.sql.add('AND TG001=TH001');
+  ADOQuery14.sql.add('AND TG002=TH002');
+  ADOQuery14.sql.add('ORDER BY TG005,TH004');
+//  ADOQuery14.Parameters.parambyname('s1').VALUE:='4';
+//  ADOQuery14.Parameters.parambyname('s2').VALUE:='6';
+  if ComboBox1.itemindex=0 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4SC';   //分類
+  if ComboBox1.itemindex=0 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4SD';
+  if ComboBox1.itemindex=1 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4EV';
+  if ComboBox1.itemindex=1 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4EW';
+  if ComboBox1.itemindex=2 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4BS';
+  if ComboBox1.itemindex=2 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4BT';
+  if ComboBox1.itemindex=3 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4RB';
+  if ComboBox1.itemindex=3 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4RC';
+  if ComboBox1.itemindex=4 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5SG';
+  if ComboBox1.itemindex=4 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5SH';
+  if ComboBox1.itemindex=5 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4JB';
+  if ComboBox1.itemindex=5 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4JC';
+  if ComboBox1.itemindex=6 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4GA';
+  if ComboBox1.itemindex=6 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4GB';
+  if ComboBox1.itemindex=7 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4FM';
+  if ComboBox1.itemindex=7 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4FT';
+  if ComboBox1.itemindex=8 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5PC';
+  if ComboBox1.itemindex=8 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5PM';
+  if ComboBox1.itemindex=9 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5TP';
+  if ComboBox1.itemindex=9 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5TQ';
+  if ComboBox1.itemindex=10 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5LB';
+  if ComboBox1.itemindex=10 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5LC';
+  if ComboBox1.itemindex=11 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5SW';
+  if ComboBox1.itemindex=11 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5SX';
+  if ComboBox1.itemindex=12 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5FL0';
+  if ComboBox1.itemindex=12 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5FL9';
+//  ADOQuery14.Parameters.parambyname('s1').VALUE:='1';
+//  ADOQuery14.Parameters.parambyname('s2').VALUE:='2';
+  ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+'010000';
+  ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+'129999';
+  ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+  ADOQuery14.open;
+  ADOQuery14.first;
+  i:=1;
+  IF ADOQuery14.RECORDCOUNT>0 THEN
+    begin
+      s1[i,1]:=ADOQuery14.FieldByName('TH004').value;                              //找出品號、品名、規格、廠商 清單
+      s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+      s1[i,3]:=ADOQuery14.FieldByName('TH006').value;
+      s1[i,4]:=ADOQuery14.FieldByName('TH005').value;
+
+      ADOQuery14.next;
+      for j:= 1 to ADOQuery14.RECORDCOUNT do
+        begin
+          if (s1[i,1]<>ADOQuery14.FieldByName('TH004').value) or                   //比對品號、廠商
+             (s1[i,2]<>ADOQuery14.FieldByName('TG005').value) then
+            begin
+              i:=i+1;
+              s1[i,1]:=ADOQuery14.FieldByName('TH004').value;
+              s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+              s1[i,3]:=ADOQuery14.FieldByName('TH006').value;;
+              s1[i,4]:=ADOQuery14.FieldByName('TH005').value;
+            end;
+          ADOQuery14.next;
+        end;
+      StringGrid1.rowcount:=i+2;
+      ProgressBar1.Max:=i;
+      ProgressBar1.position:=0;
+
+      for j :=1 to i do
+        begin
+//          StringGrid1.Cells[0,j]:=s1[j,1];
+          StringGrid1.Cells[0,j]:=s1[j,4];
+          StringGrid1.Cells[1,j]:=s1[j,3];
+          StringGrid1.Cells[16,j]:=s1[j,1];
+          if (ComboBox1.itemindex=0) then t1[4]:=strtofloat(copy(s1[j,1],6,3));
+          for l:=1 to 9 do
+            begin
+              ADOQuery14.close;
+              ADOQuery14.SQL.Clear;
+              ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007,TG005');     // 查1-9進貨單價
+              ADOQuery14.sql.add('from PURTH,PURTG');
+              ADOQuery14.sql.add('WHERE TH004=:s1');
+              ADOQuery14.sql.add('AND TG005=:s2');
+              ADOQuery14.sql.add('AND TH002>:s3');
+              ADOQuery14.sql.add('AND TH002<:s4');
+              ADOQuery14.sql.add('AND TH030=:s5');
+              ADOQuery14.sql.add('AND TG001=TH001');
+              ADOQuery14.sql.add('AND TG002=TH002');
+              ADOQuery14.sql.add('ORDER BY TH004,TH002');
+              ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+              ADOQuery14.Parameters.parambyname('s2').VALUE:=s1[j,2];
+              ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+'0'+inttostr(l)+'0000';
+              ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+'0'+inttostr(l)+'9999';
+              ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+              ADOQuery14.open;
+
+              for m:= 1 to 3 do t1[m]:=0;
+              IF ADOQuery14.RECORDCOUNT>0 THEN
+                begin
+                  for n:= 1 to ADOQuery14.RECORDCOUNT do
+                    begin
+                      t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;
+                      t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value;
+                      ADOQuery14.next;
+                    end;
+                  if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                  if (t1[1]>0) and (t1[4]>0)and (ComboBox1.itemindex=0)then t1[3]:=t1[2]/t1[1]/t1[4]*100;
+                  StringGrid1.Cells[l+2,j]:=floattostrF(t1[3],ffNumber,7,2);
+                  StringGrid1.Cells[15,j]:=ADOQuery14.FieldByName('TG007').asstring;
+                end;
+            end;
+
+          for l:=10 to 12 do
+            begin
+              ADOQuery14.close;
+              ADOQuery14.SQL.Clear;
+              ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007,TG005');    // 查10-12進貨單價
+              ADOQuery14.sql.add('from PURTH,PURTG');
+              ADOQuery14.sql.add('WHERE TH004=:s1');
+              ADOQuery14.sql.add('AND TG005=:s2');
+              ADOQuery14.sql.add('AND TH002>:s3');
+              ADOQuery14.sql.add('AND TH002<:s4');
+              ADOQuery14.sql.add('AND TH030=:s5');
+              ADOQuery14.sql.add('AND TG001=TH001');
+              ADOQuery14.sql.add('AND TG002=TH002');
+              ADOQuery14.sql.add('ORDER BY TH004,TH002');
+              ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+              ADOQuery14.Parameters.parambyname('s2').VALUE:=s1[j,2];
+              ADOQuery14.Parameters.parambyname('s3').VALUE:=Edit1.text+inttostr(l)+'0000';
+              ADOQuery14.Parameters.parambyname('s4').VALUE:=Edit1.text+inttostr(l)+'9999';
+              ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+              ADOQuery14.open;
+
+              for m:= 1 to 3 do t1[m]:=0;
+              IF ADOQuery14.RECORDCOUNT>0 THEN
+                begin
+                  for n:= 1 to ADOQuery14.RECORDCOUNT do
+                    begin
+                      t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;
+                      t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value;
+                      ADOQuery14.next;
+                    end;
+                  if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                  if (t1[1]>0) and (t1[4]>0) and(ComboBox1.itemindex=0)then t1[3]:=t1[2]/t1[1]/t1[4]*100;
+                  StringGrid1.Cells[l+2,j]:=floattostrF(t1[3],ffNumber,7,2);
+                  StringGrid1.Cells[15,j]:=ADOQuery14.FieldByName('TG007').asstring;
+                end;
+            end;
+          ProgressBar1.position:=j;
+        end;
+{
+      for j := 1 to i do
+        begin
+          ADOQuery1.close;                                                        //轉換品名   2010.12.21
+          ADOQuery1.SQL.Clear;
+          ADOQuery1.SQL.add('select MB002');
+          ADOQuery1.sql.add('from INVMB');
+          ADOQuery1.sql.add('where MB001=:s1');
+          ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,1];
+          ADOQuery1.open;
+          if ADOQuery1.recordcount>0 then
+            begin
+              s1[j,4]:=ADOQuery1.fieldbyname('MB002').VALUE;
+              StringGrid1.Cells[0,j]:=s1[j,4];
+            end;
+        end;
+}
+      for j := 1 to i do
+        begin
+          ADOQuery1.close;                                                         //轉換廠商   2010.12.28
+          ADOQuery1.SQL.Clear;
+          ADOQuery1.SQL.add('select MA002');
+          ADOQuery1.sql.add('from PURMA');
+          ADOQuery1.sql.add('where MA001=:s1');
+          ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,2];
+          ADOQuery1.open;
+          if ADOQuery1.recordcount>0 then
+            begin
+              s1[j,2]:=ADOQuery1.fieldbyname('MA002').VALUE;
+              StringGrid1.Cells[2,j]:=s1[j,2];
+            end;
+        end;
+      ProgressBar1.position:=0;
+    end;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  ComboBox1.itemindex:=0;
+  ComboBox2.itemindex:=0;
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  s1:array[1..100,1..5] of string;
+  t1:array[1..4] of real;
+  i,j,l,m,n:integer;
+begin
+
+  for i:=1 to 100 do
+    for j:=1 to 3 do
+      s1[i,j]:='';
+
+  for j:=1 to 100 do
+    for l:= 1 to 18 do
+      StringGrid2.Cells[l-1,j]:='';
+
+  StringGrid2.Cells[0,0]:='品名';
+  StringGrid2.Cells[1,0]:='規格';
+  StringGrid2.Cells[2,0]:='廠商';
+  StringGrid2.Cells[3,0]:='年度';
+  StringGrid2.Cells[4,0]:='01';
+  StringGrid2.Cells[5,0]:='02';
+  StringGrid2.Cells[6,0]:='03';
+  StringGrid2.Cells[7,0]:='04';
+  StringGrid2.Cells[8,0]:='05';
+  StringGrid2.Cells[9,0]:='06';
+  StringGrid2.Cells[10,0]:='07';
+  StringGrid2.Cells[11,0]:='08';
+  StringGrid2.Cells[12,0]:='09';
+  StringGrid2.Cells[13,0]:='10';
+  StringGrid2.Cells[14,0]:='11';
+  StringGrid2.Cells[15,0]:='12';
+  StringGrid2.Cells[16,0]:='幣別';
+  StringGrid2.Cells[17,0]:='品號';
+
+  i:=StrToInt(Edit1.text);                                                             //年度
+
+  ADOQuery14.close;
+  ADOQuery14.SQL.Clear;
+  ADOQuery14.SQL.add('select TH004,TH005,TH006,TH002,TH018,TH015,TG007,TG005,TH002');         // 查進貨單明細
+  ADOQuery14.sql.add('from PURTH,PURTG');
+  ADOQuery14.sql.add('WHERE TH004>:s1');
+  ADOQuery14.sql.add('AND TH004<:s2');
+  ADOQuery14.sql.add('AND TH002>:s3');
+  ADOQuery14.sql.add('AND TH002<:s4');
+  ADOQuery14.sql.add('AND TH030=:s5');
+  ADOQuery14.sql.add('AND TG001=TH001');
+  ADOQuery14.sql.add('AND TG002=TH002');
+  ADOQuery14.sql.add('ORDER BY TG005,TH004,TH002');
+  if ComboBox2.itemindex=0 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4SC';   // 增加分類 2010.12.28
+  if ComboBox2.itemindex=0 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4SD';
+  if ComboBox2.itemindex=1 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4EV';
+  if ComboBox2.itemindex=1 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4EW';
+  if ComboBox2.itemindex=2 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4BS';
+  if ComboBox2.itemindex=2 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4BT';
+  if ComboBox2.itemindex=3 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4RB';
+  if ComboBox2.itemindex=3 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4RC';
+  if ComboBox2.itemindex=4 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5SG';
+  if ComboBox2.itemindex=4 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5SH';
+  if ComboBox2.itemindex=5 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4JB';
+  if ComboBox2.itemindex=5 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4JC';
+  if ComboBox2.itemindex=6 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4GA';
+  if ComboBox2.itemindex=6 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4GB';
+  if ComboBox2.itemindex=7 then ADOQuery14.Parameters.parambyname('s1').VALUE:='4FM';
+  if ComboBox2.itemindex=7 then ADOQuery14.Parameters.parambyname('s2').VALUE:='4FT';
+  if ComboBox2.itemindex=8 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5PC';
+  if ComboBox2.itemindex=8 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5PM';
+  if ComboBox2.itemindex=9 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5TP';
+  if ComboBox2.itemindex=9 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5TQ';
+  if ComboBox2.itemindex=10 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5LB';
+  if ComboBox2.itemindex=10 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5LC';
+  if ComboBox2.itemindex=11 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5SW';
+  if ComboBox2.itemindex=11 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5SX';
+  if ComboBox2.itemindex=12 then ADOQuery14.Parameters.parambyname('s1').VALUE:='5FL0';
+  if ComboBox2.itemindex=12 then ADOQuery14.Parameters.parambyname('s2').VALUE:='5FL9';
+  ADOQuery14.Parameters.parambyname('s3').VALUE:=inttostr(i-1)+'010000';                //前ㄧ年度
+  ADOQuery14.Parameters.parambyname('s4').VALUE:=inttostr(i)+'129999';                  //年度
+  ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+  ADOQuery14.open;
+  ADOQuery14.first;
+  i:=1;
+  IF ADOQuery14.RECORDCOUNT>0 THEN
+    begin
+      s1[i,1]:=ADOQuery14.FieldByName('TH004').value;
+      s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+      s1[i,3]:=copy(ADOQuery14.FieldByName('TH002').value,1,4);                  //增加年度  2010.12.29
+      s1[i,4]:=ADOQuery14.FieldByName('TH006').value;                             //增加規格  2011.01.04
+      s1[i,5]:=ADOQuery14.FieldByName('TH005').value;
+      ADOQuery14.next;
+      for j:= 1 to ADOQuery14.RECORDCOUNT do
+        begin
+          if (s1[i,1]<>ADOQuery14.FieldByName('TH004').value) or
+             (s1[i,2]<>ADOQuery14.FieldByName('TG005').value) or
+             (s1[i,3]<>copy(ADOQuery14.FieldByName('TH002').value,1,4)) then
+            begin
+              i:=i+1;
+              s1[i,1]:=ADOQuery14.FieldByName('TH004').value;
+              s1[i,2]:=ADOQuery14.FieldByName('TG005').value;
+              s1[i,3]:=copy(ADOQuery14.FieldByName('TH002').value,1,4);
+              s1[i,4]:=ADOQuery14.FieldByName('TH006').value;
+              s1[i,5]:=ADOQuery14.FieldByName('TH005').value;
+            end;
+          ADOQuery14.next;
+        end;
+        StringGrid2.rowcount:=i+2;
+
+        ProgressBar1.Max:=i;
+        ProgressBar1.position:=0;
+
+        for j :=1 to i do
+          begin
+//            StringGrid2.Cells[0,j]:=s1[j,1];
+            StringGrid2.Cells[0,j]:=s1[j,5];
+            StringGrid2.Cells[1,j]:=s1[j,4];
+            StringGrid2.Cells[2,j]:=s1[j,2];
+            StringGrid2.Cells[3,j]:=s1[j,3];
+            StringGrid2.Cells[17,j]:=s1[j,1];
+            if (ComboBox1.itemindex=0) then t1[4]:=strtofloat(copy(s1[j,1],6,3));
+            for l:=1 to 9 do
+              begin
+                ADOQuery14.close;
+                ADOQuery14.SQL.Clear;
+                ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007');                // 查1-9進貨單價
+                ADOQuery14.sql.add('from PURTH,PURTG');
+                ADOQuery14.sql.add('WHERE TH004=:s1');
+                ADOQuery14.sql.add('AND TG005=:s2');
+                ADOQuery14.sql.add('AND TH002>:s3');
+                ADOQuery14.sql.add('AND TH002<:s4');
+                ADOQuery14.sql.add('AND TH030=:s5');
+                ADOQuery14.sql.add('AND TG001=TH001');
+                ADOQuery14.sql.add('AND TG002=TH002');
+                ADOQuery14.sql.add('ORDER BY TH004,TH002');
+                ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+                ADOQuery14.Parameters.parambyname('s2').VALUE:=s1[j,2];
+                ADOQuery14.Parameters.parambyname('s3').VALUE:=s1[j,3]+'0'+inttostr(l)+'0000';
+                ADOQuery14.Parameters.parambyname('s4').VALUE:=s1[j,3]+'0'+inttostr(l)+'9999';
+                ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+                ADOQuery14.open;
+
+                for m:= 1 to 3 do t1[m]:=0;
+                IF ADOQuery14.RECORDCOUNT>0 THEN
+                  begin
+                    for n:= 1 to ADOQuery14.RECORDCOUNT do
+                      begin
+                        t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;                                       //總數量
+                        t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value; //總金額
+                        ADOQuery14.next;
+                      end;
+                    if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                    if (t1[1]>0) and (t1[4]>0) and(ComboBox2.itemindex=0)then t1[3]:=t1[2]/t1[1]/t1[4]*100;                                                          //平均單價
+                    StringGrid2.Cells[l+3,j]:=floattostrF(t1[3],ffNumber,7,2);
+                    StringGrid2.Cells[16,j]:=ADOQuery14.FieldByName('TG007').asstring;                            //幣別
+                  end;
+              end;
+
+            for l:=10 to 12 do
+              begin
+                ADOQuery14.close;
+                ADOQuery14.SQL.Clear;
+                ADOQuery14.SQL.add('select TH004,TH002,TH018,TH015,TG007');               // 查10-12進貨單價
+                ADOQuery14.sql.add('from PURTH,PURTG');
+                ADOQuery14.sql.add('WHERE TH004=:s1');
+                ADOQuery14.sql.add('AND TG005=:s2');
+                ADOQuery14.sql.add('AND TH002>:s3');
+                ADOQuery14.sql.add('AND TH002<:s4');
+                ADOQuery14.sql.add('AND TH030=:s5');
+                ADOQuery14.sql.add('AND TG001=TH001');
+                ADOQuery14.sql.add('AND TG002=TH002');
+                ADOQuery14.sql.add('ORDER BY TH004,TH002');
+                ADOQuery14.Parameters.parambyname('s1').VALUE:=s1[j,1];
+                ADOQuery14.Parameters.parambyname('s2').VALUE:=s1[j,2];
+                ADOQuery14.Parameters.parambyname('s3').VALUE:=s1[j,3]+inttostr(l)+'0000';
+                ADOQuery14.Parameters.parambyname('s4').VALUE:=s1[j,3]+inttostr(l)+'9999';
+                ADOQuery14.Parameters.parambyname('s5').VALUE:='Y';
+                ADOQuery14.open;
+
+                for m:= 1 to 3 do t1[m]:=0;
+                IF ADOQuery14.RECORDCOUNT>0 THEN
+                  begin
+                    for n:= 1 to ADOQuery14.RECORDCOUNT do
+                      begin
+                        t1[1]:=t1[1]+ADOQuery14.FieldByName('TH015').value;
+                        t1[2]:=t1[2]+ADOQuery14.FieldByName('TH018').value*ADOQuery14.FieldByName('TH015').value;
+                        ADOQuery14.next;
+                      end;
+                    if t1[1]>0 then t1[3]:=t1[2]/t1[1];
+                    if (t1[1]>0) and (t1[4]>0) and(ComboBox2.itemindex=0)then t1[3]:=t1[2]/t1[1]/t1[4]*100;
+                    StringGrid2.Cells[l+3,j]:=floattostrF(t1[3],ffNumber,7,2);
+                    StringGrid2.Cells[16,j]:=ADOQuery14.FieldByName('TG007').asstring;
+                  end;
+              end;
+            ProgressBar1.position:=j;
+          end;
+{
+        for j := 1 to i do
+          begin
+            ADOQuery1.close;                                                      //轉換品名   2010.12.21
+            ADOQuery1.SQL.Clear;
+            ADOQuery1.SQL.add('select MB002');
+            ADOQuery1.sql.add('from INVMB');
+            ADOQuery1.sql.add('where MB001=:s1');
+            ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,1];
+            ADOQuery1.open;
+            if ADOQuery1.recordcount>0 then
+              begin
+                s1[j,5]:=ADOQuery1.fieldbyname('MB002').VALUE;
+                StringGrid2.Cells[0,j]:=s1[j,5];
+              end;
+          end;
+}
+        for j := 1 to i do
+          begin
+            ADOQuery1.close;                                                     //轉換廠商簡稱   2010.12.28
+            ADOQuery1.SQL.Clear;
+            ADOQuery1.SQL.add('select MA002');
+            ADOQuery1.sql.add('from PURMA');
+            ADOQuery1.sql.add('where MA001=:s1');
+            ADOQuery1.Parameters.parambyname('s1').VALUE:=s1[j,2];
+            ADOQuery1.open;
+            if ADOQuery1.recordcount>0 then
+              begin
+                s1[j,2]:=ADOQuery1.fieldbyname('MA002').VALUE;
+                StringGrid2.Cells[2,j]:=s1[j,2];
+              end;
+          end;
+        ProgressBar1.position:=0;
+    end;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);                                  //轉出 excel
+VAR
+  asheet:variant;
+  i,j:INTEGER;
+begin
+  ExcelApplication1.Visible[0]:=true;
+  ExcelApplication1.Workbooks.Add(xlwbatworksheet,0);
+  asheet:= ExcelApplication1.Worksheets.Item[1];
+  FOR i := 0 to StringGrid1.RowCount do
+    begin
+      for j := 0 to StringGrid1.colCount  do
+        begin
+          asheet.cells[i+1,j+1].value:=StringGrid1.Cells[j,i];
+        end;
+    end;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);                                   //轉出 excel
+VAR
+  asheet:variant;
+  i,j:INTEGER;
+begin
+  ExcelApplication1.Visible[0]:=true;
+  ExcelApplication1.Workbooks.Add(xlwbatworksheet,0);
+  asheet:= ExcelApplication1.Worksheets.Item[1];
+  FOR i := 0 to StringGrid2.RowCount do
+    begin
+      for j := 0 to StringGrid2.colCount  do
+        begin
+          asheet.cells[i+1,j+1].value:=StringGrid2.Cells[j,i];
+        end;
+    end;
+end;
+
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;            //漲價變紅、跌價變藍
+  Rect: TRect; State: TGridDrawState);
+begin
+  with   StringGrid1   do
+    begin
+      if (ARow=0) THEN
+        BEGIN
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,1); //文字靠中
+        END;
+      if (ARow>0) and (ACol>2) and (ACol<15) and (Cells[ACol,ARow]<>'') THEN
+        begin
+          Canvas.Brush.Color:=clWhite;
+          if (ACol>3) and (Cells[ACol-1,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                              //前1月
+              if (Cells[ACol,ARow] < Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>4) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前2月
+              if (Cells[ACol,ARow] < Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>5) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前3月
+              if (Cells[ACol,ARow] < Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>6) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           //前4月
+              if (Cells[ACol,ARow] < Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>7) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前5月
+              if (Cells[ACol,ARow] < Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>8) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前6月
+              if (Cells[ACol,ARow] < Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>9) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前7月
+              if (Cells[ACol,ARow] < Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>10) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前8月
+              if (Cells[ACol,ARow] < Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>11) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前9月
+              if (Cells[ACol,ARow] < Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>12) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前10月
+              if (Cells[ACol,ARow] < Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>13) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]='') and
+             (Cells[ACol-11,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           //前11月
+              if (Cells[ACol,ARow] < Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,2); //文字靠右
+        end;
+    end;
+end;
+
+procedure TForm1.StringGrid2DrawCell(Sender: TObject; ACol, ARow: Integer;            //漲價變紅、跌價變藍
+  Rect: TRect; State: TGridDrawState);
+begin
+  with StringGrid2 do
+    begin
+      if (ARow=0) THEN
+        BEGIN
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,1); //文字靠中
+        END;
+        
+      if (ARow=1) and (ACol>3) and (ACol<16) THEN
+        BEGIN
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,2); //文字靠右
+        END;
+
+      if (ARow>1) and (ACol>3) and (ACol<16) and (Cells[ACol,ARow]<>'') and (Cells[ACol,ARow-1]<>'') and
+         (Cells[0,ARow]=Cells[0,ARow-1]) and (Cells[1,ARow]=Cells[1,ARow-1]) and
+         (Cells[2,ARow]=Cells[2,ARow-1]) and (Cells[17,ARow]=Cells[17,ARow-1]) THEN
+        begin
+          Canvas.Brush.Color:=clWhite;                                           //前1年
+          if (Cells[ACol,ARow] > Cells[ACol,ARow-1])  then
+            begin
+              Canvas.Brush.Color:=clRed;
+              Canvas.font.Color:=clWhite;
+            end;                                              
+          if (Cells[ACol,ARow] < Cells[ACol,ARow-1])  then
+            begin
+              Canvas.Brush.Color:=clBlue;
+              Canvas.font.Color:=clWhite;
+            end;
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,2); //文字靠右
+        end;
+
+      if (ARow>1) and (ACol>3) and (ACol<16) and (Cells[ACol,ARow]<>'') THEN       //前1月
+        begin
+          if (ACol>4) and (Cells[ACol-1,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             
+              if (Cells[ACol,ARow] < Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>5) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]<>'') then             //前2月
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            
+              if (Cells[ACol,ARow] < Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>6) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and               //前3月
+             (Cells[ACol-3,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           
+              if (Cells[ACol,ARow] < Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>7) and                                                            //前4月
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                         
+              if (Cells[ACol,ARow] < Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>8) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and               //前5月
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            
+              if (Cells[ACol,ARow] < Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>9) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and              //前6月
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             
+              if (Cells[ACol,ARow] < Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>10) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and              //前7月
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            
+              if (Cells[ACol,ARow] < Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>11) and                                                        //前8月
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             
+              if (Cells[ACol,ARow] < Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>12) and                                                       //前9月
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            
+              if (Cells[ACol,ARow] < Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>13) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and              //前10月
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             
+              if (Cells[ACol,ARow] < Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>14) and                                                        //前11月
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]='') and
+             (Cells[ACol-11,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           
+              if (Cells[ACol,ARow] < Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,2); //文字靠右
+        end;
+    end;
+end;
+
+procedure TForm1.StringGrid4DrawCell(Sender: TObject; ACol, ARow: Integer;         //漲價變紅、跌價變藍
+  Rect: TRect; State: TGridDrawState);
+begin
+  with   StringGrid4   do
+    begin
+      if (ARow=0) THEN
+        BEGIN
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,1); //文字靠中
+        END;
+      if (ARow>0) and (ACol>2) and (ACol<15) and (Cells[ACol,ARow]<>'') THEN
+        begin
+          Canvas.Brush.Color:=clWhite;
+          if (ACol>3) and (Cells[ACol-1,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                              //前1月
+              if (Cells[ACol,ARow] < Cells[ACol-1,ARow])  then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>4) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前2月
+              if (Cells[ACol,ARow] < Cells[ACol-2,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>5) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前3月
+              if (Cells[ACol,ARow] < Cells[ACol-3,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>6) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           //前4月
+              if (Cells[ACol,ARow] < Cells[ACol-4,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>7) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前5月
+              if (Cells[ACol,ARow] < Cells[ACol-5,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>8) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前6月
+              if (Cells[ACol,ARow] < Cells[ACol-6,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>9) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前7月
+              if (Cells[ACol,ARow] < Cells[ACol-7,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>10) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前8月
+              if (Cells[ACol,ARow] < Cells[ACol-8,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>11) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                            //前9月
+              if (Cells[ACol,ARow] < Cells[ACol-9,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>12) and
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                             //前10月
+              if (Cells[ACol,ARow] < Cells[ACol-10,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          if (ACol>13) and 
+             (Cells[ACol-1,ARow]='') and (Cells[ACol-2,ARow]='') and
+             (Cells[ACol-3,ARow]='') and (Cells[ACol-4,ARow]='') and
+             (Cells[ACol-5,ARow]='') and (Cells[ACol-6,ARow]='') and
+             (Cells[ACol-7,ARow]='') and (Cells[ACol-8,ARow]='') and
+             (Cells[ACol-9,ARow]='') and (Cells[ACol-10,ARow]='') and
+             (Cells[ACol-11,ARow]<>'') then
+            begin
+              if (Cells[ACol,ARow] > Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clRed;
+                 Canvas.font.Color:=clWhite;
+                end;                                           //前11月
+              if (Cells[ACol,ARow] < Cells[ACol-11,ARow]) then
+                begin
+                 Canvas.Brush.Color:=clBlue;
+                 Canvas.font.Color:=clWhite;
+                end;
+            end;
+          Canvas.FillRect(Rect);
+          DrawText(Canvas.Handle,PChar(Cells[ACol,ARow]),Length(Cells[ACol,ARow]),Rect,2); //文字靠右
+        end;
+    end;
+end;
+
+procedure TForm1.StringGrid1SelectCell(Sender: TObject; ACol,                          //計算漲跌幅
+  ARow: Integer; var CanSelect: Boolean);
+var
+  n:array [1..5] of real;
+begin
+  label2.caption:='0.00';
+  edit2.text:=StringGrid1.cells[16,ARow];
+  Button6.Click;
+
+  if (ACol>3) and (ACol<15) and(ARow>0) and (StringGrid1.cells[ACol,ARow]<>'')then
+    begin
+      if (StringGrid1.cells[ACol-1,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-1,ARow]);                      //前1月
+        end;
+      if (ACol>4) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-2,ARow]);                      //前2月
+        end;
+      if (ACol>5) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-3,ARow]);                      //前3月
+        end;
+      if (ACol>6) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-4,ARow]);                      //前4月
+        end;
+      if (ACol>7) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-5,ARow]);                      //前5月
+        end;
+      if (ACol>8) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-6,ARow]);                       //前6月
+        end;
+      if (ACol>9) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]='') and
+         (StringGrid1.cells[ACol-7,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-7,ARow]);                      //前7月
+        end;
+      if (ACol>10) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]='') and
+         (StringGrid1.cells[ACol-7,ARow]='') and (StringGrid1.cells[ACol-8,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-8,ARow]);                      //前8月
+        end;
+      if (ACol>11) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]='') and
+         (StringGrid1.cells[ACol-7,ARow]='') and (StringGrid1.cells[ACol-8,ARow]='') and
+         (StringGrid1.cells[ACol-9,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-9,ARow]);                       //前9月
+        end;
+      if (ACol>12) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]='') and
+         (StringGrid1.cells[ACol-7,ARow]='') and (StringGrid1.cells[ACol-8,ARow]='') and
+         (StringGrid4.cells[ACol-9,ARow]='') and (StringGrid1.cells[ACol-10,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-10,ARow]);                     //前10月
+        end;
+      if (ACol>13) and
+         (StringGrid1.cells[ACol-1,ARow]='') and (StringGrid1.cells[ACol-2,ARow]='') and
+         (StringGrid1.cells[ACol-3,ARow]='') and (StringGrid1.cells[ACol-4,ARow]='') and
+         (StringGrid1.cells[ACol-5,ARow]='') and (StringGrid1.cells[ACol-6,ARow]='') and
+         (StringGrid1.cells[ACol-7,ARow]='') and (StringGrid1.cells[ACol-8,ARow]='') and
+         (StringGrid1.cells[ACol-9,ARow]='') and (StringGrid1.cells[ACol-10,ARow]='') and
+         (StringGrid1.cells[ACol-11,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid1.cells[ACol-11,ARow]);                     //前11月
+        end;
+      n[2]:=strtofloat(StringGrid1.cells[ACol,ARow]);
+      if n[1]<>0 then n[3]:=(n[2]-n[1])/n[1]*100;
+      label2.caption:=floattostrf(n[3],ffNumber,7,2);
+    end;
+end;
+
+procedure TForm1.StringGrid4SelectCell(Sender: TObject; ACol,                         //計算漲跌幅
+  ARow: Integer; var CanSelect: Boolean);
+var
+  n:array [1..5] of real;
+begin
+  label9.caption:='0.00';
+  if (ACol>3) and (ACol<15) and(ARow>0) and (StringGrid4.cells[ACol,ARow]<>'')then
+    begin
+      if (StringGrid4.cells[ACol-1,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-1,ARow]);                      //前1月
+        end;
+      if (ACol>4) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-2,ARow]);                      //前2月
+        end;
+      if (ACol>5) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-3,ARow]);                      //前3月
+        end;
+      if (ACol>6) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-4,ARow]);                      //前4月
+        end;
+      if (ACol>7) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-5,ARow]);                      //前5月
+        end;
+      if (ACol>8) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-6,ARow]);                       //前6月
+        end;
+      if (ACol>9) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]='') and
+         (StringGrid4.cells[ACol-7,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-7,ARow]);                      //前7月
+        end;
+      if (ACol>10) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]='') and
+         (StringGrid4.cells[ACol-7,ARow]='') and (StringGrid4.cells[ACol-8,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-8,ARow]);                      //前8月
+        end;
+      if (ACol>11) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]='') and
+         (StringGrid4.cells[ACol-7,ARow]='') and (StringGrid4.cells[ACol-8,ARow]='') and
+         (StringGrid4.cells[ACol-9,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-9,ARow]);                       //前9月
+        end;
+      if (ACol>12) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]='') and
+         (StringGrid4.cells[ACol-7,ARow]='') and (StringGrid4.cells[ACol-8,ARow]='') and
+         (StringGrid4.cells[ACol-9,ARow]='') and (StringGrid4.cells[ACol-10,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-10,ARow]);                     //前10月
+        end;
+      if (ACol>13) and
+         (StringGrid4.cells[ACol-1,ARow]='') and (StringGrid4.cells[ACol-2,ARow]='') and
+         (StringGrid4.cells[ACol-3,ARow]='') and (StringGrid4.cells[ACol-4,ARow]='') and
+         (StringGrid4.cells[ACol-5,ARow]='') and (StringGrid4.cells[ACol-6,ARow]='') and
+         (StringGrid4.cells[ACol-7,ARow]='') and (StringGrid4.cells[ACol-8,ARow]='') and
+         (StringGrid4.cells[ACol-9,ARow]='') and (StringGrid4.cells[ACol-10,ARow]='') and
+         (StringGrid4.cells[ACol-11,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid4.cells[ACol-11,ARow]);                     //前11月
+        end;
+      n[2]:=strtofloat(StringGrid4.cells[ACol,ARow]);
+      if n[1]<>0 then n[3]:=(n[2]-n[1])/n[1]*100;
+      label9.caption:=floattostrf(n[3],ffNumber,7,2);
+    end;
+end;
+
+procedure TForm1.StringGrid2SelectCell(Sender: TObject; ACol,                       //計算漲跌幅
+  ARow: Integer; var CanSelect: Boolean);
+var
+  n:array [1..5] of real;
+begin
+  label6.caption:='0.00';
+  edit2.text:=StringGrid2.cells[17,ARow];
+
+  if (ARow>1) and (ACol>3) and (ACol<16) and (StringGrid2.Cells[ACol,ARow]<>'') and
+     (StringGrid2.Cells[0,ARow]=StringGrid2.Cells[0,ARow-1]) and (StringGrid2.Cells[1,ARow]=StringGrid2.Cells[1,ARow-1])and
+     (StringGrid2.Cells[2,ARow]=StringGrid2.Cells[2,ARow-1]) and (StringGrid2.Cells[17,ARow]=StringGrid2.Cells[17,ARow-1]) THEN
+    begin
+      if (StringGrid2.cells[ACol,ARow-1]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol,ARow-1]);                      //前1年
+        end;
+      n[2]:=strtofloat(StringGrid2.cells[ACol,ARow]);
+      if n[1]<>0 then n[3]:=(n[2]-n[1])/n[1]*100;
+      label6.caption:=floattostrf(n[3],ffNumber,7,2);
+    end;
+
+  if (ACol>4) and (ACol<16) and(ARow>0) and (StringGrid2.cells[ACol,ARow]<>'')then
+    begin
+      if (StringGrid2.cells[ACol-1,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-1,ARow]);                      //前1月
+        end;
+      if (ACol>5) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-2,ARow]);                      //前2月
+        end;
+      if (ACol>6) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-3,ARow]);                      //前3月
+        end;
+      if (ACol>7) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-4,ARow]);                      //前4月
+        end;
+      if (ACol>8) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-5,ARow]);                      //前5月
+        end;
+      if (ACol>9) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-6,ARow]);                       //前6月
+        end;
+      if (ACol>10) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]='') and
+         (StringGrid2.cells[ACol-7,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-7,ARow]);                      //前7月
+        end;
+      if (ACol>11) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]='') and
+         (StringGrid2.cells[ACol-7,ARow]='') and (StringGrid2.cells[ACol-8,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-8,ARow]);                      //前8月
+        end;
+      if (ACol>12) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]='') and
+         (StringGrid2.cells[ACol-7,ARow]='') and (StringGrid2.cells[ACol-8,ARow]='') and
+         (StringGrid2.cells[ACol-9,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-9,ARow]);                       //前9月
+        end;
+      if (ACol>13) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]='') and
+         (StringGrid2.cells[ACol-7,ARow]='') and (StringGrid2.cells[ACol-8,ARow]='') and
+         (StringGrid2.cells[ACol-9,ARow]='') and (StringGrid2.cells[ACol-10,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-10,ARow]);                     //前10月
+        end;
+      if (ACol>14) and
+         (StringGrid2.cells[ACol-1,ARow]='') and (StringGrid2.cells[ACol-2,ARow]='') and
+         (StringGrid2.cells[ACol-3,ARow]='') and (StringGrid2.cells[ACol-4,ARow]='') and
+         (StringGrid2.cells[ACol-5,ARow]='') and (StringGrid2.cells[ACol-6,ARow]='') and
+         (StringGrid2.cells[ACol-7,ARow]='') and (StringGrid2.cells[ACol-8,ARow]='') and
+         (StringGrid2.cells[ACol-9,ARow]='') and (StringGrid2.cells[ACol-10,ARow]='') and
+         (StringGrid2.cells[ACol-11,ARow]<>'') then
+        begin
+          n[1]:=strtofloat(StringGrid2.cells[ACol-11,ARow]);                     //前11月
+        end;
+      n[2]:=strtofloat(StringGrid2.cells[ACol,ARow]);
+      if n[1]<>0 then n[3]:=(n[2]-n[1])/n[1]*100;
+      label6.caption:=floattostrf(n[3],ffNumber,7,2);
+    end;
+end;
+
+end.
